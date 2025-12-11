@@ -308,21 +308,30 @@
         let currentWinnerIndex = -1;
 
         // --- AUDIO SETUP ---
-        // Ensure you have these files in the same folder
+        // Preload audios to ensure no lag
         const audioPull = new Audio('pull.mp3');
         const audioSpin = new Audio('spin.mp3');
-        const audioWin = new Audio('win.mp3'); // Fanfare
+        const audioWin = new Audio('win.mp3');
+        const audioBg = new Audio('bg.mp3');
 
         // Configure Loop & Volume
         audioSpin.loop = true;
+        audioBg.loop = true;
+        
         audioPull.volume = 0.5;
         audioSpin.volume = 0.5;
         audioWin.volume = 0.6;
+        
+        // UPDATED: Background volume set to Low (10%)
+        audioBg.volume = 0.1; 
 
         function initializeRaffle() {
             const input = document.getElementById('name-input').value;
             participants = input.split('\n').map(n => n.trim()).filter(n => n !== '');
             if (participants.length < 2) { alert("Please add at least 2 names."); return; }
+
+            // START BACKGROUND MUSIC HERE (User Interaction)
+            audioBg.play().catch(e => console.log("Background music blocked by browser:", e));
 
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
@@ -335,14 +344,15 @@
 
         function spin() {
             if (isSpinning || participants.length === 0) return;
-            isSpinning = true;
-
-            // 1. Play Pull Sound
-            audioPull.play().catch(e => console.log("Audio autoplay blocked:", e));
-
-            // 2. Play Spin Sound (Reset to start in case of repeat spins)
+            
+            // 1. INSTANT AUDIO TRIGGER
+            audioPull.currentTime = 0;
+            audioPull.play();
+            
             audioSpin.currentTime = 0;
-            audioSpin.play().catch(e => console.log("Audio error:", e));
+            audioSpin.play();
+
+            isSpinning = true;
 
             const lever = document.getElementById('lever-group');
             lever.classList.add('active');
@@ -357,8 +367,8 @@
             reel.innerHTML = '';
             let visualList = [];
             
-            // Generate visual buffer (45 items + winner)
-            for(let i=0; i<45; i++) {
+            // 110 items to fill the 10.49s duration smoothly
+            for(let i=0; i<110; i++) {
                 visualList.push(participants[Math.floor(Math.random() * participants.length)]);
             }
             visualList.push(winnerName);
@@ -379,22 +389,21 @@
             const itemHeight = 350;
             const targetY = -(itemHeight * (visualList.length - 1));
 
-            // Spin for 5 seconds
-            reel.style.transition = 'transform 5s cubic-bezier(0.15, 0.9, 0.35, 1)';
+            // DURATION: 10.49 Seconds
+            reel.style.transition = 'transform 10.49s cubic-bezier(0.15, 0.9, 0.35, 1)';
             reel.style.transform = `translateY(${targetY}px)`;
 
+            // Timeout matches duration (+10ms buffer)
             setTimeout(() => {
-                // STOP SPIN SOUND
                 audioSpin.pause();
                 
-                // PLAY WIN SOUND
                 audioWin.currentTime = 0;
                 audioWin.play().catch(e => console.log("Win audio error:", e));
 
                 reel.classList.remove('blur-motion');
                 showWinner(winnerName);
                 isSpinning = false;
-            }, 5100);
+            }, 10500);
         }
 
         function showWinner(name) {
@@ -415,7 +424,6 @@
         }
 
         function closeModal(shouldRemove) {
-            // Stop win sound if still playing
             audioWin.pause();
             audioWin.currentTime = 0;
 
