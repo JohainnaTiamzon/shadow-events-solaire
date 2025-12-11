@@ -48,7 +48,7 @@
         .mascot-container {
             position: relative;
             z-index: 20;
-            margin-bottom: -45px; /* Overlap the machine */
+            margin-bottom: -120px; /* Overlap the machine */
             display: flex;
             justify-content: center;
             pointer-events: none;
@@ -307,8 +307,8 @@
         let currentWinnerIndex = -1;
 
         // --- AUDIO SETUP ---
-        const audioPull = new Audio('pull.mp3');
-        const audioSpin = new Audio('spin.mp3');
+        const audioPull = new Audio('pull.m4a');
+        const audioSpin = new Audio('spin.m4a');
         const audioWin = new Audio('win.mp3');
         const audioBg = new Audio('bg.mp3');
 
