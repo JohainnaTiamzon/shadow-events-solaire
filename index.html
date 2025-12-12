@@ -36,19 +36,74 @@
             overflow-x: hidden;
         }
 
-        /* --- LOGO STYLES (NEW) --- */
+        /* --- LOGO STYLES --- */
         .top-logo {
-            max-width: 180px; /* Made smaller as requested */
+            max-width: 180px;
             height: auto;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+        }
+
+        /* --- PRIZE BOARD STYLES (NEW) --- */
+        .prize-board-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            z-index: 30; /* Above mascot */
+        }
+        
+        .prize-display {
+            background: linear-gradient(to bottom, #222, #111);
+            border: 2px solid #b38728;
+            padding: 15px 30px;
+            border-radius: 10px;
+            min-width: 300px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(179, 135, 40, 0.3);
+            position: relative;
+        }
+
+        .prize-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .prize-name {
+            font-family: var(--font-display);
+            font-size: 24px;
+            color: #fff;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid #555;
+            color: #aaa;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover {
+            border-color: #b38728;
+            color: #b38728;
+            background: rgba(0,0,0,0.5);
         }
 
         /* --- MASCOT STYLES --- */
         .mascot-container {
             position: relative;
             z-index: 20;
-            margin-bottom: -120px; /* Overlap the machine */
+            margin-bottom: -95px; 
             display: flex;
             justify-content: center;
             pointer-events: none;
@@ -88,12 +143,19 @@
             border-radius: 20px;
             border: 1px solid rgba(255, 165, 0, 0.2);
             width: 100%;
-            max-width: 700px;
+            max-width: 800px;
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+
+        .setup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
         }
 
         textarea {
@@ -104,7 +166,7 @@
             color: #fff;
             padding: 20px;
             border-radius: 10px;
-            margin: 20px 0;
+            margin: 10px 0 20px 0;
             font-family: 'Montserrat', monospace;
             resize: none;
         }
@@ -115,7 +177,6 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            /* No top margin needed since logo provides spacing */
         }
 
         .stats-pill {
@@ -130,8 +191,7 @@
 
         .machine-frame {
             position: relative;
-            /* Adjusted padding since logo is gone */
-            padding: 30px 25px 25px 25px; 
+            padding: 40px 25px 25px 25px; 
             background: #1a0505;
             border-radius: 30px;
             box-shadow: 
@@ -233,16 +293,38 @@
             transform: scale(0.8);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 0 80px rgba(255, 165, 0, 0.15);
+            min-width: 500px;
         }
         #winner-modal.visible .winner-card { transform: scale(1); }
         
+        .winner-label {
+            color: #888;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
         .winner-name {
             font-family: var(--font-display);
             font-size: 64px;
             background: var(--gold-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin: 20px 0 40px 0;
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .winner-prize {
+            font-family: var(--font-ui);
+            font-size: 24px;
+            color: #fff;
+            margin: 10px 0 40px 0;
+            font-weight: 300;
+        }
+        .winner-prize span {
+            color: #b38728;
+            font-weight: 600;
         }
         
         .blur-motion { filter: blur(5px); }
@@ -253,14 +335,33 @@
     <div id="setup-screen">
         <img src="logo.png" alt="Solaire Logo" style="max-width: 200px; margin-bottom: 20px;">
         <h2 style="letter-spacing: 2px; text-transform: uppercase; color: #b38728;">Raffle Setup</h2>
-        <p style="color: #ccc; margin-top: 5px;">Paste employee list below</p>
-        <textarea id="name-input" placeholder="Start typing names..."></textarea>
+        
+        <div class="setup-grid">
+            <div>
+                <p style="color: #ccc;">1. List of Names</p>
+                <textarea id="name-input" placeholder="Enter Employee Names..."></textarea>
+            </div>
+            <div>
+                <p style="color: #ccc;">2. List of Prizes</p>
+                <textarea id="prize-input" placeholder="Enter Prizes (e.g. iPhone 15, Gift Cert)..."></textarea>
+            </div>
+        </div>
+
         <button class="btn" onclick="initializeRaffle()">Load Machine</button>
     </div>
 
     <div id="game-screen">
         
         <img src="logo.png" alt="Solaire Online" class="top-logo" onerror="this.style.display='none';">
+
+        <div class="prize-board-container">
+            <button class="nav-btn" onclick="changePrize(-1)">&#10094;</button>
+            <div class="prize-display">
+                <div class="prize-label">Now Playing For</div>
+                <div class="prize-name" id="current-prize-display">---</div>
+            </div>
+            <button class="nav-btn" onclick="changePrize(1)">&#10095;</button>
+        </div>
 
         <div class="mascot-container">
             <img src="mascot.png" alt="Mega Funalo" class="mascot-topper" onerror="this.style.display='none';">
@@ -286,14 +387,16 @@
         </div>
         
         <div class="stats-pill" style="margin-top: 30px;">
-            Candidates: <span id="count-display">0</span>
+            Candidates: <span id="count-display">0</span> | Prizes Left: <span id="prize-count-display">0</span>
         </div>
     </div>
 
     <div id="winner-modal">
         <div class="winner-card">
-            <div style="color: #888; letter-spacing: 3px; text-transform: uppercase; font-size: 14px;">The Winner Is</div>
-            <div class="winner-name" id="modal-winner-name">NAME HERE</div>
+            <div class="winner-label">The Winner Is</div>
+            <div class="winner-name" id="modal-winner-name">NAME</div>
+            <div class="winner-prize">Congratulations! You won: <br><span id="modal-winner-prize">PRIZE</span></div>
+            
             <div style="display: flex; justify-content: center; gap: 15px;">
                 <button class="btn" onclick="closeModal(false)">Keep & Spin Again</button>
                 <button class="btn" style="background: transparent; border: 1px solid #666; color: #ccc;" onclick="closeModal(true)">Remove & Next</button>
@@ -303,6 +406,8 @@
 
     <script>
         let participants = [];
+        let prizes = [];
+        let currentPrizeIndex = 0;
         let isSpinning = false;
         let currentWinnerIndex = -1;
 
@@ -312,36 +417,69 @@
         const audioWin = new Audio('win.mp3');
         const audioBg = new Audio('bg.mp3');
 
-        // Configure Loop (BG Music loops forever)
+        // Loop Configuration
         audioSpin.loop = true;
         audioBg.loop = true; 
         
+        // Volume Configuration
         audioPull.volume = 0.5;
         audioSpin.volume = 0.5;
         audioWin.volume = 0.6;
-        audioBg.volume = 0.1; // Low background volume
+        audioBg.volume = 0.1; 
 
         function initializeRaffle() {
-            const input = document.getElementById('name-input').value;
-            participants = input.split('\n').map(n => n.trim()).filter(n => n !== '');
+            // Parse Names
+            const nameInput = document.getElementById('name-input').value;
+            participants = nameInput.split('\n').map(n => n.trim()).filter(n => n !== '');
+            
+            // Parse Prizes
+            const prizeInput = document.getElementById('prize-input').value;
+            prizes = prizeInput.split('\n').map(p => p.trim()).filter(p => p !== '');
+
             if (participants.length < 2) { alert("Please add at least 2 names."); return; }
+            if (prizes.length < 1) { 
+                // Default prize if none entered
+                prizes = ["Grand Prize"];
+            }
 
             // Start BG Music
             audioBg.play().catch(e => console.log("Background music blocked by browser:", e));
 
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
-            updateCount();
+            
+            updateStats();
+            updatePrizeDisplay();
         }
 
-        function updateCount() {
+        function updateStats() {
             document.getElementById('count-display').innerText = participants.length.toLocaleString();
+            document.getElementById('prize-count-display').innerText = prizes.length.toLocaleString();
+        }
+
+        function updatePrizeDisplay() {
+            if (prizes.length === 0) {
+                document.getElementById('current-prize-display').innerText = "NO PRIZES LEFT";
+                return;
+            }
+            // Ensure index is valid
+            if (currentPrizeIndex >= prizes.length) currentPrizeIndex = 0;
+            if (currentPrizeIndex < 0) currentPrizeIndex = prizes.length - 1;
+            
+            document.getElementById('current-prize-display').innerText = prizes[currentPrizeIndex];
+        }
+
+        function changePrize(direction) {
+            if (isSpinning || prizes.length === 0) return;
+            currentPrizeIndex += direction;
+            updatePrizeDisplay();
         }
 
         function spin() {
             if (isSpinning || participants.length === 0) return;
+            if (prizes.length === 0) { alert("No prizes left!"); return; }
             
-            // Audio Triggers
+            // Instant Audio
             audioPull.currentTime = 0;
             audioPull.play();
             
@@ -363,8 +501,7 @@
             reel.innerHTML = '';
             let visualList = [];
             
-            // 2. ADJUSTED ITEMS for 9 SECONDS
-            // 90 items provides a good speed for 9 seconds
+            // 90 items for 9 seconds
             for(let i=0; i<90; i++) {
                 visualList.push(participants[Math.floor(Math.random() * participants.length)]);
             }
@@ -386,11 +523,11 @@
             const itemHeight = 350;
             const targetY = -(itemHeight * (visualList.length - 1));
 
-            // 3. UPDATED DURATION: 9 SECONDS
+            // Spin Duration: 9 Seconds
             reel.style.transition = 'transform 9s cubic-bezier(0.15, 0.9, 0.35, 1)';
             reel.style.transform = `translateY(${targetY}px)`;
 
-            // Timeout set to 9100ms (9s + tiny buffer)
+            // Timeout: 9.1 Seconds
             setTimeout(() => {
                 audioSpin.pause();
                 
@@ -405,6 +542,8 @@
 
         function showWinner(name) {
             document.getElementById('modal-winner-name').innerText = name;
+            document.getElementById('modal-winner-prize').innerText = prizes[currentPrizeIndex];
+            
             const modal = document.getElementById('winner-modal');
             modal.style.display = 'flex';
             setTimeout(() => { modal.classList.add('visible'); triggerConfetti(); }, 100);
@@ -428,10 +567,20 @@
             modal.classList.remove('visible');
             setTimeout(() => {
                 modal.style.display = 'none';
-                if (shouldRemove && currentWinnerIndex > -1) {
-                    participants.splice(currentWinnerIndex, 1);
-                    updateCount();
+                
+                if (shouldRemove) {
+                    // Remove Name
+                    if (currentWinnerIndex > -1) {
+                        participants.splice(currentWinnerIndex, 1);
+                    }
+                    // Remove Prize
+                    if (prizes.length > 0) {
+                        prizes.splice(currentPrizeIndex, 1);
+                    }
+                    updateStats();
+                    updatePrizeDisplay();
                 }
+
                 const reel = document.getElementById('reel');
                 reel.style.transition = 'none';
                 reel.innerHTML = '<li><span style="color: #b38728;">READY</span></li>';
